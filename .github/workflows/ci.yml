@@ -1,0 +1,76 @@
+name: CI - Integration Continue
+
+on:
+  push:
+    branches:
+      - dev
+
+permissions:
+  contents: write
+
+jobs:
+  ci:
+    runs-on: ubuntu-latest
+    name: Build, Test & Integrate
+
+    steps:
+      # ── 1. Récupérer le code avec tout l'historique ──────────────────────
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0          # historique complet nécessaire pour git reset / merge
+          token: ${{ secrets.CI_PAT }}   # PAT pour pouvoir pousser sur les branches protégées
+
+      # ── 2. Configurer Python ─────────────────────────────────────────────
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.x'
+
+      # ── 3. Installer les dépendances de test ─────────────────────────────
+      - name: Install pytest
+        run: pip install pytest
+
+      # ── 4. Compiler / exécuter le code source ────────────────────────────
+      - name: Build (syntax check)
+        run: python -m py_compile src/main.py
+
+      # ── 5. Lancer les tests ───────────────────────────────────────────────
+      - name: Run tests
+        id: run_tests
+        run: pytest tests/ -v
+
+      # ── 6. CAS SUCCÈS : fast-forward main → dev ───────────────────────────
+      - name: "[SUCCESS] Fast-forward main onto dev"
+        if: success()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          git checkout main
+          git merge --ff-only dev
+          git push origin main
+
+          echo "✅ main is now up-to-date with dev"
+
+      # ── 7. CAS ÉCHEC : créer failures/<n_unique> et reset dev ────────────
+      - name: "[FAILURE] Move failing commit to failures branch & reset dev"
+        if: failure()
+        run: |
+          git config user.name  "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+          # Numéro unique basé sur le timestamp + numéro de run
+          UNIQUE_NUM="${{ github.run_number }}_$(date +%Y%m%d%H%M%S)"
+          FAILURE_BRANCH="failures/${UNIQUE_NUM}"
+
+          # Créer la branche failures/* à partir du commit fautif (HEAD de dev)
+          git checkout -b "${FAILURE_BRANCH}"
+          git push origin "${FAILURE_BRANCH}"
+          echo "⚠️  Failing commit pushed to branch: ${FAILURE_BRANCH}"
+
+          # Revenir sur dev et annuler le commit fautif (git reset HEAD@{1})
+          git checkout dev
+          git reset --hard HEAD~1
+          git push --force origin dev
+          echo "🔄 dev has been reset to HEAD~1 (failing commit removed)"
