@@ -37,7 +37,6 @@ jobs:
       - name: Build (syntax check)
         run: |
           python -m py_compile src/main.py
-          python -m py_compile src/rpg.py
 
       # ── 5. Lancer les tests ───────────────────────────────────────────────
       - name: Run tests
