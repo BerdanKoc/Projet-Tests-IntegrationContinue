@@ -1,3 +1,5 @@
+import random
+
 class Personnage:
     def __init__(self, nom, hp=10):
         self.nom = nom
@@ -8,7 +10,9 @@ class Personnage:
         return self.hp > 0
 
     def attaquer(self, cible):
-        cible.recevoir_degats(1)
+        degats_max = 1
+        degats_infliges = random.randint(0, degats_max)
+        cible.recevoir_degats(degats_infliges)
 
     def recevoir_degats(self, degats):
         self.hp -= degats
