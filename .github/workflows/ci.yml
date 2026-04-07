@@ -29,17 +29,20 @@ jobs:
           python-version: '3.x'
 
       # ── 3. Installer les dépendances de test ─────────────────────────────
-      - name: Install pytest
-        run: pip install pytest
-
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
       # ── 4. Compiler / vérifier la syntaxe du code source ─────────────────
       - name: Build (syntax check)
-        run: python -m py_compile src/main.py
+        run: |
+          python -m py_compile src/main.py
+          python -m py_compile src/rpg.py
 
       # ── 5. Lancer les tests ───────────────────────────────────────────────
       - name: Run tests
         id: run_tests
-        run: pytest tests/ -v
+        run: python -m pytest -v
 
       # ── 6. CAS SUCCÈS : fast-forward main → dev ───────────────────────────
       - name: "[SUCCESS] Fast-forward main onto dev"
