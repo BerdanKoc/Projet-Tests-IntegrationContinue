@@ -1,0 +1,13 @@
+# Ignorer l'environnement virtuel
+venv/
+
+# Ignorer les caches générés par les tests
+.pytest_cache/
+
+# Ignorer TOUS les dossiers __pycache__ à n'importe quel niveau de l'arborescence
+**/__pycache__/
+
+# Ignorer TOUS les fichiers compilés Python, peu importe le dossier
+**/*.pyc
+**/*.pyo
+**/*.pyd
