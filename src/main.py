@@ -1,7 +1,8 @@
 class Personnage:
-    def __init__(self, nom, hp=10):
+    def __init__(self, nom, endurance=0):
         self.nom = nom
-        self.hp = hp
+        self.endurance = endurance
+        self.hp = 10 + self.endurance
 
     @property
     def est_vivant(self):
