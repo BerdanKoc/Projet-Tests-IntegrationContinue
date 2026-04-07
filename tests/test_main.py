@@ -34,16 +34,20 @@ def create_target(contexte):
 
 @when('l\'attaquant attaque la cible')
 def attack(contexte):
+    # Plus de triche ! On utilise la vraie méthode avec son aléatoire
     contexte['attaquant'].attaquer(contexte['cible'])
 
-@then('la cible a 9 points de vie')
-def check_target_hp(contexte):
-    assert contexte['cible'].hp == 9
+@then('la cible a entre 9 et 10 points de vie')
+def check_target_hp_range(contexte):
+    # On vérifie que le résultat est cohérent avec nos règles
+    assert contexte['cible'].hp in [9, 10]
 
 # --- Scénario 3 ---
 @given('une victime avec 1 point de vie')
 def create_victim(contexte):
-    contexte['hero'] = Personnage("Victime", hp=1)
+    perso = Personnage("Victime")
+    perso.hp = 1 
+    contexte['hero'] = perso
 
 @when('la victime subit 1 degat')
 def take_damage(contexte):

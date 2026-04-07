@@ -5,11 +5,11 @@ Feature: Système de combat RPG
     Then le personnage a 10 points de vie
     And le personnage est vivant
 
-  Scenario: Attaquer fait perdre 1 HP
+  Scenario: Attaquer inflige des degats aleatoires
     Given un personnage nommé "Attaquant"
     And un second personnage nommé "Cible"
     When l'attaquant attaque la cible
-    Then la cible a 9 points de vie
+    Then la cible a entre 9 et 10 points de vie
 
   Scenario: La mort a zero HP
     Given une victime avec 1 point de vie
