@@ -1,7 +1,8 @@
 class Personnage:
-    def __init__(self, nom, endurance=0):
+    def __init__(self, nom, endurance=0, force=0):
         self.nom = nom
         self.endurance = endurance
+        self.force = force
         self.hp = 10 + self.endurance
 
     @property
@@ -9,7 +10,8 @@ class Personnage:
         return self.hp > 0
 
     def attaquer(self, cible):
-        cible.recevoir_degats(1)
+        degats = 1 + self.force
+        cible.recevoir_degats(degats)
 
     def recevoir_degats(self, degats):
         self.hp -= degats
