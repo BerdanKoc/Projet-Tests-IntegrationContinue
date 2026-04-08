@@ -15,3 +15,14 @@ Feature: Système de combat RPG
     Given une victime avec 1 point de vie
     When la victime subit 1 degat
     Then le personnage est mort
+
+  Scenario: L'armure reduit les degats subis
+    Given une cible avec 2 points d'armure
+    When la cible subit 5 degats
+    Then la cible perd seulement 3 points de vie
+
+  Scenario: Duel 2v2
+    Given une equipe "Rouge" avec 2 joueurs
+    And une equipe "Bleue" avec 2 joueurs
+    When l'equipe Rouge et Bleue s'affrontent
+    Then au moins un joueur a perdu des points de vie
