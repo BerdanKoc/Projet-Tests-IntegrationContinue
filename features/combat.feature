@@ -26,3 +26,20 @@ Feature: Système de combat RPG
     And une equipe "Bleue" avec 2 joueurs
     When l'equipe Rouge et Bleue s'affrontent
     Then au moins un joueur a perdu des points de vie
+
+    Scenario: Un personnage evolue s'il tue un ennemi
+    Given un attaquant "Tueur"
+    And une cible "Victime" avec 1 point de vie
+    When "Tueur" attaque et tue "Victime"
+    Then les statistiques de "Tueur" ont augmente
+
+  Scenario: L'agilite determine l'ordre d'attaque
+    Given un personnage "Rapide" avec 10 en agilite
+    And un personnage "Lent" avec 0 en agilite
+    When un duel est lance
+    Then "Rapide" attaque en premier
+
+  Scenario: Focus de la cible sous 30% HP
+    Given une equipe avec "Saine" a 10 HP et "Blessee" a 2 HP
+    When on cherche la cible prioritaire
+    Then "Blessee" est choisie

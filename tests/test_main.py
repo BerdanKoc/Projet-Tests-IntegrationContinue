@@ -1,5 +1,6 @@
 from pytest_bdd import scenarios, given, when, then
-from src.main import Personnage, Equipe
+from src.main import Personnage, Equipe, resoudre_duel
+from unittest.mock import patch
 import pytest
 
 scenarios('../features/combat.feature')
@@ -84,3 +85,57 @@ def team_fight(contexte):
 def check_team_fight(contexte):
     b1_hp = contexte['equipe_bleue'].joueurs[0].hp
     assert b1_hp in [9, 10]
+
+# --- Scénario 6 : Évolution ---
+@given('un attaquant "Tueur"')
+def create_killer(contexte):
+    contexte['tueur'] = Personnage("Tueur")
+    contexte['stats_avant'] = contexte['tueur'].endurance + contexte['tueur'].force + contexte['tueur'].niveau + contexte['tueur'].agilite
+
+@given('une cible "Victime" avec 1 point de vie')
+def create_killable_victim(contexte):
+    cible = Personnage("Victime")
+    cible.hp = 1
+    contexte['victime'] = cible
+
+@when('"Tueur" attaque et tue "Victime"')
+def kill_victim(contexte):
+    with patch('src.main.random.randint', return_value=5):
+        contexte['tueur'].attaquer(contexte['victime'])
+
+@then('les statistiques de "Tueur" ont augmente')
+def check_evolution(contexte):
+    tueur = contexte['tueur']
+    stats_apres = tueur.endurance + tueur.force + tueur.niveau + tueur.agilite
+    assert stats_apres > contexte['stats_avant']
+
+@given('un personnage "Rapide" avec 10 en agilite')
+def create_fast(contexte):
+    contexte['rapide'] = Personnage("Rapide", agilite=10)
+
+@given('un personnage "Lent" avec 0 en agilite')
+def create_slow(contexte):
+    contexte['lent'] = Personnage("Lent", agilite=0)
+
+@when('un duel est lance')
+def start_duel(contexte):
+    contexte['premier_attaquant'] = resoudre_duel(contexte['rapide'], contexte['lent'])
+
+@then('"Rapide" attaque en premier')
+def check_first_attacker(contexte):
+    assert contexte['premier_attaquant'].nom == "Rapide"
+
+@given('une equipe avec "Saine" a 10 HP et "Blessee" a 2 HP')
+def create_team_with_weakling(contexte):
+    saine = Personnage("Saine")
+    blessee = Personnage("Blessee")
+    blessee.hp = 2
+    contexte['equipe_cible'] = Equipe("Cibles", [saine, blessee])
+
+@when('on cherche la cible prioritaire')
+def find_priority(contexte):
+    contexte['cible_trouvee'] = contexte['equipe_cible'].obtenir_cible_prioritaire()
+
+@then('"Blessee" est choisie')
+def check_priority_target(contexte):
+    assert contexte['cible_trouvee'].nom == "Blessee"
